@@ -1,0 +1,56 @@
+import getpdf
+import tabula as tb
+import os
+import glob
+import pandas as pd
+import numpy
+
+os.chdir('C:\\Users\\Sully\\Desktop\\pdf_test')
+
+
+stack_two=[]
+
+for pdf in glob.glob("*.pdf"):  
+    try:
+        ord_dict = getpdf.get_form_fields(pdf)
+        listed = list(ord_dict.items())
+        stack_one = numpy.row_stack(listed)
+    except:
+        try:
+            tabula_read = tb.read_pdf(pdf, pandas_options={'header': None})
+            stack_two.append(tabula_read)
+            
+        except:
+            ###add filename error here 
+            ####ALSO let's handle FDF's here if we can maybe...
+             print('this is a scanned document')
+    ###v stack and row_stack
+    
+###form pdf data  
+df_one= pd.DataFrame(stack_one)
+df_one = df_one.rename({0:"Data_Collected",1:"Activity_Total"}, axis = 'columns')
+df_one = df_one[~df_one.Data_Collected.str.contains("Agency|Print|Save|State|31 SUBMIT TO HSOC")]
+df_one['Activity_Total'] = pd.to_numeric(df_one['Activity_Total'])
+
+###tabula data
+df_two = pd.concat(stack_two, axis=0)
+df_two = df_two.rename({0:'Data_Collected',1:'Activity_Total'} , axis='columns')
+df_two = pd.DataFrame(df_two)
+##df.rename({0:"Data",1:"Total"} , axis='columns')
+# Select columns to group by/sum on
+grouped= df_two.groupby(['Data_Collected'])['Activity_Total'].sum()
+##create dataframe from dataframe object
+df_two=pd.DataFrame(grouped).reset_index()
+
+
+writer = pd.ExcelWriter('Form_Data.xlsx', engine = 'xlsxwriter')
+df_one.to_excel(writer, sheet_name = 'Flat_Data')
+df_two.to_excel(writer, sheet_name = 'Form_Data')
+writer.save()
+writer.close()
+
+# IF YOU WANT THEM TOGETHER============================================================================
+# frames =[df_one,df_two]
+# final_df = pd.concat(frames)
+# final_df['Activity_Total'] = pd.to_numeric(final_df['Activity_Total'])
+# final_grouped= final_df.groupby(['Data_Collected'])['Activity_Total'].sum()
