@@ -5,7 +5,7 @@ import glob
 import pandas as pd
 import numpy
 
-os.chdir('C:\\Users\\Sully\\Desktop\\pdf_test')
+os.chdir('C:\\Users\\GrumpyStatistician\\Desktop\\pdf_test')
 
 
 stack_two=[]
