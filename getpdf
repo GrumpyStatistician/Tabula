@@ -1,5 +1,8 @@
+-----this code was taken from stack overflow and is required to run overall program
+
+
 import os
-os.chdir('C:\\Users\\KS21589\\Desktop\\Care')
+os.chdir('C:\\Users\\GrumpyStatistician\\Desktop\\Care')
 
 from collections import OrderedDict
 from PyPDF2 import PdfFileWriter, PdfFileReader
